@@ -1,29 +1,21 @@
-FROM php:8.1.27-fpm-alpine
+FROM php:8.1.27-fpm
 
 ARG APP_ID=1000
 
+RUN groupadd -g "$APP_ID" app \
+  && useradd -g "$APP_ID" -u "$APP_ID" -d /var/www -s /bin/bash app
 
-
-RUN apk update && apk add --no-cache  \
+RUN apt-get update && apt-get install -y  \
     git \
     curl \
     libpng-dev \
-    oniguruma-dev\
     libxml2-dev \
     file \
     gettext \
     zip \
-    unzip
-
-
-
-
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-
-RUN apt-get update && apt-get install -y \
+    unzip \
     cron \
     default-mysql-client \
-    git \
     gnupg \
     gzip \
     libbz2-dev \
@@ -45,12 +37,9 @@ RUN apt-get update && apt-get install -y \
     nodejs \
     procps \
     vim \
-    zip \
   && rm -rf /var/lib/apt/lists/*
 
 
-RUN mkdir -p /etc/nginx/html /var/www/html /sock \
-  && chown -R app:app /etc/nginx /var/www /usr/local/etc/php/conf.d /sock
 
 RUN pecl channel-update pecl.php.net && pecl install \
     imagick \
@@ -93,11 +82,8 @@ RUN docker-php-ext-configure \
 RUN curl -sS https://getcomposer.org/installer | \
   php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN groupadd -g "$APP_ID" app \
-  && useradd -g "$APP_ID" -u "$APP_ID" -d /var/www -s /bin/bash app
-
-
-
+RUN mkdir -p /etc/nginx/html /var/www/html /sock \
+  && chown -R app:app /etc/nginx /var/www /usr/local/etc/php/conf.d /sock
 
 COPY ./images/php/8.1/conf/php.ini $PHP_INI_DIR
 COPY ./images/php/8.1/conf/php-fpm.conf /usr/local/etc/
