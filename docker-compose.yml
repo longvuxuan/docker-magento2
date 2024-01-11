@@ -1,0 +1,89 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./dockerfile/nginx/Dockerfile
+    # image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+      - ~/.composer:/var/www/.composer:cached
+    extra_hosts:
+      - "mage.test:127.0.0.1"
+  phpfpm:
+    build:
+      context: .
+      dockerfile: ./dockerfile/phpfpm/Dockerfile
+    volumes:
+      - ./src:/var/www/html
+
+#  mysql:
+#    image: mysql:8.0
+#    volumes:
+#      - ./mysql:/var/lib/mysql
+#      - ./sql:/docker-entrypoint-initdb.d:ro
+#    env_file: env/db.env
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: example
+    volumes:
+      - dbdata:/var/lib/mysql
+    env_file: env/db.env
+
+#  db:
+#    image: mariadb:10.6.16
+#    command:
+#      --max_allowed_packet=64M
+#      --optimizer_use_condition_selectivity=1
+#      --optimizer_switch="rowid_filter=off"
+#    ports:
+#      - "3306:3306"
+#    env_file: env/db.env
+#    volumes:
+#      - ./mysql:/var/lib/mysql
+#      - ./sql:/docker-entrypoint-initdb.d:ro
+
+  # elasticsearch:
+  #   image: elasticsearch:7.7.1
+  #   ports:
+  #    - "9300:9300"
+  #    - "9200:9200"
+  #   environment:
+  #     discovery.type: single-node
+
+  myadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    env_file: env/db.env
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+    restart: always
+    depends_on:
+      - db
+
+  redis:
+    image: redis:6.0-alpine
+    ports:
+      - "6379:6379"
+
+  opensearch:
+    build:
+      context: .
+      dockerfile: images/opensearch/1.2/Dockerfile
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    env_file: env/opensearch.env
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+      - "index.blocks.read_only_allow_delete"
+volumes:
+  dbdata:
