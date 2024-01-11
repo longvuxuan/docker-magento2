@@ -84,7 +84,7 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN echo 'memory_limit = -1' >> "$PHP_INI_DIR/php.ini"
 
-COPY ./dockerfile/phpfpm/conf/php-fpm.conf /usr/local/etc/
+# COPY ./dockerfile/phpfpm/conf/php-fpm.conf /usr/local/etc/
 COPY ./dockerfile/phpfpm/conf/www.conf /usr/local/etc/php-fpm.d/
 
 USER app:app
