@@ -40,9 +40,10 @@ services:
     restart: always
     command:
       --max_allowed_packet=64M
-      --optimizer_use_condition_selectivity=1
-      --optimizer_switch="rowid_filter=off"
       --default-authentication-plugin=mysql_native_password
+    #   --optimizer_use_condition_selectivity=1
+    #   --optimizer_switch="rowid_filter=off"
+      
     ports:
       - "3306:3306"
     environment:
