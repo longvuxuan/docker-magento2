@@ -48,34 +48,37 @@ RUN pecl channel-update pecl.php.net && pecl install \
   && pecl clear-cache \
   && rm -rf /tmp/pear
 
+
 # RUN docker-php-ext-configure \
-#     gd --with-freetype --with-jpeg --with-webp \
-#   && docker-php-ext-install \
-#     bcmath \
-#     bz2 \
-#     calendar \
-#     exif \
-#     gd \
-#     gettext \
-#     intl \
-#     mbstring \
-#     mysqli \
-#     opcache \
-#     pcntl \
-#     pdo_mysql \
-#     soap \
-#     sockets \
-#     sodium \
-#     sysvmsg \
-#     sysvsem \
-#     sysvshm \
-#     xsl \
-#     zip \
-#   && docker-php-ext-enable \
-#     imagick \
-#     redis \
-#     ssh2 \
-#     xdebug
+  # gd --with-png=/usr/include/ --with-jpeg=/usr/include/ --with-freetype=/usr/include/ \
+RUN docker-php-ext-configure \
+  gd --with-png-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-freetype-dir=/usr/include/ \
+  && docker-php-ext-install \
+    bcmath \
+    bz2 \
+    calendar \
+    exif \
+    gd \
+    gettext \
+    intl \
+    mbstring \
+    mysqli \
+    opcache \
+    pcntl \
+    pdo_mysql \
+    soap \
+    sockets \
+    sodium \
+    sysvmsg \
+    sysvsem \
+    sysvshm \
+    xsl \
+    zip \
+  && docker-php-ext-enable \
+    imagick \
+    redis \
+    ssh2 
+    # xdebug
 
 RUN curl -sS https://getcomposer.org/installer | \
   php -- --install-dir=/usr/local/bin --filename=composer
@@ -84,7 +87,6 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN echo 'memory_limit = -1' >> "$PHP_INI_DIR/php.ini"
 
-# COPY ./dockerfile/phpfpm/conf/php-fpm.conf /usr/local/etc/
 COPY ./dockerfile/phpfpm/conf/www.conf /usr/local/etc/php-fpm.d/
 
 USER app:app
