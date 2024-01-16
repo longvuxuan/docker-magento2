@@ -21,8 +21,8 @@ RUN apk add --no-cache \
 #   && curl -L https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-$TARGETARCH -o mkcert \
 #   && chmod +x mkcert
 
-COPY ./dockerfile/nginx/setting/mage2.conf /etc/nginx/setting/
-COPY ./dockerfile/nginx/conf.d/default.conf /etc/nginx/conf.d/
+COPY ./docker/nginx/setting/mage2.conf /etc/nginx/setting/
+COPY ./docker/nginx/conf.d/default.conf /etc/nginx/conf.d/
 
 RUN mkdir -p /etc/nginx/html /var/www/html \
   && chown -R app:app /etc/nginx /var/www /var/cache/nginx /var/run/nginx.pid /var/log /sock

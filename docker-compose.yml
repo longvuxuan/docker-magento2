@@ -4,13 +4,14 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./dockerfile/nginx/Dockerfile
+      dockerfile: ./docker/nginx/Dockerfile
     command: /bin/sh -c "nginx -g 'daemon off;'"
     ports:
       - "80:80"
     volumes:
       - ./src:/var/www/html
-      - ~/.composer:/var/www/.composer:cached
+      - ./.composer/cache:/var/www/.composer/cache:cached
+      - ssldata:/etc/nginx/certs
     extra_hosts:
       - "mage.test:127.0.0.1"
     links:
@@ -20,48 +21,52 @@ services:
   phpfpm:
     build:
       context: .
-      dockerfile: ./dockerfile/phpfpm/Dockerfile
+      dockerfile: ./docker/phpfpm/Dockerfile
     ports:
       - "9000:9000"
     volumes:
       - ./src:/var/www/html
+      - ./.bashrc:/var/www/.bashrc
+#      - ./src/app/code:/var/www/html/app/code:cached
+#      - ./src/app/design:/var/www/html/app/design:cached
+#      - ./src/app/etc:/var/www/html/app/etc:cached
+#      - ./src/composer.json:/var/www/html/composer.json:cached
+#      - ./src/composer.lock:/var/www/html/composer.lock:cached
+#      - ./src/grunt-config.json.sample:/var/www/html/grunt-config.json:cached
+#      - ./src/Gruntfile.js.sample:/var/www/html/Gruntfile.js:cached
+#      - ./src/dev/tools/grunt/configs:/var/www/html/dev/tools/grunt/configs:cached
+#      - ./src/nginx.conf.sample:/var/www/html/nginx.conf:cached
+#      - ./src/package.json.sample:/var/www/html/package.json:cached
     working_dir: /var/www/html
 
-#  mysql:
-#    image: mysql:8.0
-#    volumes:
-#      - ./mysql:/var/lib/mysql
-#      - ./sql:/docker-entrypoint-initdb.d:ro
-#    env_file: env/db.env
   db:
     build:
       context: .
-      dockerfile: ./dockerfile/mysql/Dockerfile
+      dockerfile: ./docker/mysql/Dockerfile
     restart: always
     command:
       --max_allowed_packet=64M
       --default-authentication-plugin=mysql_native_password
-    #   --optimizer_use_condition_selectivity=1
-    #   --optimizer_switch="rowid_filter=off"
-      
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: "magento"
     volumes:
       - dbdata:/var/lib/mysql
-      # - ./sql:/docker-entrypoint-initdb.d
     env_file: env/db.env
 
-  # elasticsearch:
-  #   image: elasticsearch:7.7.1
-  #   ports:
-  #    - "9300:9300"
-  #    - "9200:9200"
-  #   environment:
-  #     discovery.type: single-node
+  elasticsearch:
+    image: elasticsearch:7.7.1
+    ports:
+    - "9300:9300"
+    - "9200:9200"
+    env_file: env/elasticsearch.env
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+      - "index.blocks.read_only_allow_delete"
 
-  myadmin:
+  phpmyadmin:
     image: phpmyadmin/phpmyadmin
     ports:
       - "8080:80"
@@ -77,25 +82,28 @@ services:
     image: redis:6.0-alpine
     ports:
       - "6379:6379"
+    env_file: env/redis.env
 
-  opensearch:
-    build:
-      context: .
-      dockerfile: images/opensearch/1.2/Dockerfile
+#  opensearch:
+#    build:
+#      context: .
+#      dockerfile: images/opensearch/1.2/Dockerfile
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+#    env_file: env/opensearch.env
+#    environment:
+#      - "discovery.type=single-node"
+#      - "cluster.routing.allocation.disk.threshold_enabled=false"
+#      - "index.blocks.read_only_allow_delete"
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: always
     ports:
-      - "9200:9200"
-      - "9300:9300"
-    env_file: env/opensearch.env
-    environment:
-      - "discovery.type=single-node"
-      - "cluster.routing.allocation.disk.threshold_enabled=false"
-      - "index.blocks.read_only_allow_delete"
-
-  # mailhog:
-  #   image: mailhog/mailhog
-  #   ports:
-  #     - 1025:1025
-  #     - 8025:8025
+     - 1025:1025
+     - 8025:8025
 
 volumes:
   dbdata:
+  ssldata:
