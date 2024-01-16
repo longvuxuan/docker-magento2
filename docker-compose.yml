@@ -9,6 +9,7 @@ services:
     command: /bin/sh -c "nginx -g 'daemon off;'"
     ports:
       - "80:80"
+      - "443:8443"
     volumes:
       - ./src:/var/www/html
       - ./.composer/cache:/var/www/.composer/cache:cached
@@ -28,18 +29,20 @@ services:
       - "9000:9000"
     volumes:
       - ./src:/var/www/html
-      - ./.bashrc:/var/www/.bashrc
-#      - ./src/app/code:/var/www/html/app/code:cached
-#      - ./src/app/design:/var/www/html/app/design:cached
-#      - ./src/app/etc:/var/www/html/app/etc:cached
-#      - ./src/composer.json:/var/www/html/composer.json:cached
-#      - ./src/composer.lock:/var/www/html/composer.lock:cached
-#      - ./src/grunt-config.json.sample:/var/www/html/grunt-config.json:cached
-#      - ./src/Gruntfile.js.sample:/var/www/html/Gruntfile.js:cached
-#      - ./src/dev/tools/grunt/configs:/var/www/html/dev/tools/grunt/configs:cached
-#      - ./src/nginx.conf.sample:/var/www/html/nginx.conf:cached
-#      - ./src/package.json.sample:/var/www/html/package.json:cached
+      - ./docker/env/.bashrc:/var/www/.bashrc
+      - ./src/app/code:/var/www/html/app/code:cached
+      - ./src/app/design:/var/www/html/app/design:cached
+      - ./src/app/etc:/var/www/html/app/etc:cached
+      - ./src/composer.json:/var/www/html/composer.json:cached
+      - ./src/composer.lock:/var/www/html/composer.lock:cached
+      - ./src/grunt-config.json.sample:/var/www/html/grunt-config.json:cached
+      - ./src/Gruntfile.js.sample:/var/www/html/Gruntfile.js:cached
+      - ./src/dev/tools/grunt/configs:/var/www/html/dev/tools/grunt/configs:cached
+      - ./src/nginx.conf.sample:/var/www/html/nginx.conf:cached
+      - ./src/package.json.sample:/var/www/html/package.json:cached
     working_dir: /var/www/html
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   db:
     container_name: m2-db
@@ -105,6 +108,16 @@ services:
 #      - "cluster.routing.allocation.disk.threshold_enabled=false"
 #      - "index.blocks.read_only_allow_delete"
 
+  rabbitmq:
+    container_name: m2-rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+    env_file: docker/env/rabbitmq.env
+
   mailhog:
     container_name: m2-mailhog
     image: mailhog/mailhog:latest
@@ -112,7 +125,10 @@ services:
     ports:
      - 1025:1025
      - 8025:8025
+    links:
+      - php
 
 volumes:
   dbdata:
   ssldata:
+  rabbitmqdata:
