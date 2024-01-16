@@ -1,10 +1,11 @@
 version: '3.9'
 
 services:
-  app:
+  web:
+    container_name: m2-web
     build:
       context: .
-      dockerfile: ./docker/nginx/Dockerfile
+      dockerfile: docker/images/nginx/1.18/Dockerfile
     command: /bin/sh -c "nginx -g 'daemon off;'"
     ports:
       - "80:80"
@@ -15,13 +16,14 @@ services:
     extra_hosts:
       - "mage.test:127.0.0.1"
     links:
-      - phpfpm
+      - php
       - db
 
-  phpfpm:
+  php:
+    container_name: m2-php
     build:
       context: .
-      dockerfile: ./docker/phpfpm/Dockerfile
+      dockerfile: docker/images/php/7.4/Dockerfile
     ports:
       - "9000:9000"
     volumes:
@@ -40,9 +42,10 @@ services:
     working_dir: /var/www/html
 
   db:
+    container_name: m2-db
     build:
       context: .
-      dockerfile: ./docker/mysql/Dockerfile
+      dockerfile: docker/images/mysql/Dockerfile
     restart: always
     command:
       --max_allowed_packet=64M
@@ -53,24 +56,28 @@ services:
       MYSQL_ROOT_PASSWORD: "magento"
     volumes:
       - dbdata:/var/lib/mysql
-    env_file: env/db.env
+    env_file: docker/env/db.env
 
   elasticsearch:
-    image: elasticsearch:7.7.1
+    container_name: m2-elasticsearch
+    build:
+      context: .
+      dockerfile: docker/images/elasticsearch/7.17/Dockerfile
     ports:
     - "9300:9300"
     - "9200:9200"
-    env_file: env/elasticsearch.env
+    env_file: docker/env/elasticsearch.env
     environment:
       - "discovery.type=single-node"
       - "cluster.routing.allocation.disk.threshold_enabled=false"
       - "index.blocks.read_only_allow_delete"
 
   phpmyadmin:
+    container_name: m2-phpmyadmin
     image: phpmyadmin/phpmyadmin
     ports:
       - "8080:80"
-    env_file: env/db.env
+    env_file: docker/env/db.env
     environment:
       - PMA_ARBITRARY=1
       - PMA_HOST=db
@@ -79,10 +86,11 @@ services:
       - db
 
   redis:
+    container_name: m2-redis
     image: redis:6.0-alpine
     ports:
       - "6379:6379"
-    env_file: env/redis.env
+    env_file: docker/env/redis.env
 
 #  opensearch:
 #    build:
@@ -98,6 +106,7 @@ services:
 #      - "index.blocks.read_only_allow_delete"
 
   mailhog:
+    container_name: m2-mailhog
     image: mailhog/mailhog:latest
     restart: always
     ports:
