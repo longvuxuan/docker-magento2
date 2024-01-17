@@ -39,6 +39,7 @@ RUN apt-get update \
   libyaml-dev \
   libzip-dev \
   zip \
+  libnss3-tools \
   golang-go \
   && rm -rf /var/lib/apt/lists/*
 

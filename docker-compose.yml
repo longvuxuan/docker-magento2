@@ -9,11 +9,10 @@ services:
     command: /bin/sh -c "nginx -g 'daemon off;'"
     ports:
       - "80:80"
-      - "443:8443"
+      - "443:443"
     volumes:
       - ./src:/var/www/html
       - ./.composer/cache:/var/www/.composer/cache:cached
-      - ssldata:/etc/nginx/certs
     extra_hosts:
       - "mage.test:127.0.0.1"
     links:
@@ -130,5 +129,5 @@ services:
 
 volumes:
   dbdata:
-  ssldata:
+#  ssldata:
   rabbitmqdata:
