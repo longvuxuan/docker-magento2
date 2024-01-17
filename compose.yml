@@ -1,11 +1,14 @@
 version: '3.9'
 
 services:
-  web:
-    container_name: m2-web
+  nginx:
+    container_name: m2-nginx
     build:
       context: .
-      dockerfile: docker/images/nginx/1.18/Dockerfile
+      dockerfile: docker/images/nginx/${NGINX_VERSION}/Dockerfile
+      args:
+        DOMAIN: ${DOMAIN}
+        APP_ID: ${APP_ID}
     command: /bin/sh -c "nginx -g 'daemon off;'"
     ports:
       - "80:80"
@@ -14,7 +17,7 @@ services:
       - ./src:/var/www/html
       - ./.composer/cache:/var/www/.composer/cache:cached
     extra_hosts:
-      - "mage.test:127.0.0.1"
+      - ${EXTRA_HOST}
     links:
       - php
       - db
@@ -23,7 +26,7 @@ services:
     container_name: m2-php
     build:
       context: .
-      dockerfile: docker/images/php/7.4/Dockerfile
+      dockerfile: docker/images/php/${PHP_VERSION}/Dockerfile
     ports:
       - "9000:9000"
     volumes:
@@ -54,21 +57,21 @@ services:
       --default-authentication-plugin=mysql_native_password
     ports:
       - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: "magento"
     volumes:
       - dbdata:/var/lib/mysql
-    env_file: docker/env/db.env
+    env_file:
+      - docker/env/db.env
 
   elasticsearch:
     container_name: m2-elasticsearch
     build:
       context: .
-      dockerfile: docker/images/elasticsearch/7.17/Dockerfile
+      dockerfile: docker/images/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
     ports:
-    - "9300:9300"
-    - "9200:9200"
-    env_file: docker/env/elasticsearch.env
+      - "9300:9300"
+      - "9200:9200"
+    env_file:
+      - docker/env/elasticsearch.env
     environment:
       - "discovery.type=single-node"
       - "cluster.routing.allocation.disk.threshold_enabled=false"
@@ -79,7 +82,8 @@ services:
     image: phpmyadmin/phpmyadmin
     ports:
       - "8080:80"
-    env_file: docker/env/db.env
+    env_file:
+      - docker/env/db.env
     environment:
       - PMA_ARBITRARY=1
       - PMA_HOST=db
@@ -92,7 +96,8 @@ services:
     image: redis:6.0-alpine
     ports:
       - "6379:6379"
-    env_file: docker/env/redis.env
+    env_file:
+      - docker/env/redis.env
 
 #  opensearch:
 #    build:
@@ -115,7 +120,8 @@ services:
       - "5672:5672"
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
-    env_file: docker/env/rabbitmq.env
+    env_file:
+      - docker/env/rabbitmq.env
 
   mailhog:
     container_name: m2-mailhog
@@ -129,5 +135,4 @@ services:
 
 volumes:
   dbdata:
-#  ssldata:
   rabbitmqdata:
