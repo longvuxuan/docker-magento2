@@ -52,65 +52,72 @@ services:
       context: .
       dockerfile: docker/images/mysql/Dockerfile
     restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: magento
     command:
-      --max_allowed_packet=64M
-      --default-authentication-plugin=mysql_native_password
+      --max_allowed_packet=1000M
+#      --default-authentication-plugin=mysql_native_password
     ports:
       - "3306:3306"
     volumes:
-      - dbdata:/var/lib/mysql
+#      - ./docker/images/mysql/data:/var/lib/mysql
+      - ./docker/images/mysql/db/:/docker-entrypoint-initdb.d/
+#      - ./docker/images/mysql/db:/docker-entrypoint-initdb-multi.d
     env_file:
-      - docker/settings/db.env
+      - ./docker/settings/db.env
 
-  elasticsearch:
-    container_name: m2-elasticsearch
-    build:
-      context: .
-      dockerfile: docker/images/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
-    ports:
-      - "9300:9300"
-      - "9200:9200"
-    env_file:
-      - docker/settings/elasticsearch.env
-    environment:
-      - "discovery.type=single-node"
-      - "cluster.routing.allocation.disk.threshold_enabled=false"
-      - "index.blocks.read_only_allow_delete"
+#  elasticsearch:
+#    container_name: m2-elasticsearch
+#    build:
+#      context: .
+#      dockerfile: docker/images/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
+#    ports:
+#      - "9300:9300"
+#      - "9200:9200"
+#    env_file:
+#      - ./docker/settings/elasticsearch.env
+#    environment:
+#      - "discovery.type=single-node"
+#      - "cluster.routing.allocation.disk.threshold_enabled=false"
+#      - "index.blocks.read_only_allow_delete"
 
   phpmyadmin:
     container_name: m2-phpmyadmin
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
     ports:
       - "8080:80"
     env_file:
-      - docker/settings/db.env
+      - ./docker/settings/db.env
     environment:
+      - UPLOAD_LIMIT=1G
       - PMA_ARBITRARY=1
       - PMA_HOST=db
+      - PMA_POST=3306
     restart: always
     depends_on:
       - db
 
   redis:
     container_name: m2-redis
-    image: redis:6.0-alpine
+    image: redis:7.0-alpine
     ports:
       - "6379:6379"
     env_file:
-      - docker/settings/redis.env
+      - ./docker/settings/redis.env
 
-#  opensearch:
-#    build:
-#      context: .
-#      dockerfile: images/opensearch/1.2/Dockerfile
-#    ports:
-#      - "9200:9200"
-#      - "9300:9300"
-#    env_file: env/opensearch.env
-#    environment:
-#      - "discovery.type=single-node"
-#      - "cluster.routing.allocation.disk.threshold_enabled=false"
-#      - "index.blocks.read_only_allow_delete"
+  opensearch:
+    build:
+      context: .
+      dockerfile: ./docker/images/opensearch/2.5/Dockerfile
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    env_file:
+      - ./docker/settings/opensearch.env
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+      - "index.blocks.read_only_allow_delete"
 
   rabbitmq:
     container_name: m2-rabbitmq
@@ -121,7 +128,7 @@ services:
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     env_file:
-      - docker/settings/rabbitmq.env
+      - ./docker/settings/rabbitmq.env
 
   mailhog:
     container_name: m2-mailhog
@@ -134,5 +141,4 @@ services:
       - php
 
 volumes:
-  dbdata:
   rabbitmq-data:

@@ -1,4 +1,11 @@
-FROM mysql:8.0
+FROM mariadb:10.6
 
-COPY ./docker/images/mysql/db/db.sql /docker-entrypoint-initdb.d/init.sql
-COPY ./docker/images/mysql/conf/my.cnf /etc/mysql/
+#RUN mkdir -p /etc/mysql/data \
+#  && chown -R app:app /etc/mysql/data \
+
+#COPY ./docker/images/mysql/db/magento.sql.gz /etc/mysql/data
+#COPY ./docker/images/mysql/db/magento.sql.gz /docker-entrypoint-initdb.d
+#COPY ./docker/images/mysql/conf/my.cnf /etc/mysql/conf.d/
+
+#COPY ./docker/images/mysql/settings/init_data.sh .
+#RUN ["sh", "./init_data.sh"]

@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y  \
     nodejs \
     procps \
     vim \
+    golang-go \
   && rm -rf /var/lib/apt/lists/*
 
 
@@ -80,14 +81,23 @@ RUN docker-php-ext-configure \
 
 
 RUN curl -sS https://getcomposer.org/installer | \
-  php -- --install-dir=/usr/local/bin --filename=composer
+  php -- --install-dir=/usr/local/bin --filename=composer \
+
+RUN composer self-update --2
+
+# Configure MailHog
+RUN go install github.com/mailhog/mhsendmail@latest
+RUN echo 'sendmail_path="/usr/local/bin/mhsendmail --smtp-addr=mailhog:1025"' >> /usr/local/etc/php/conf.d/mail.ini
 
 RUN mkdir -p /etc/nginx/html /var/www/html /sock \
   && chown -R app:app /etc/nginx /var/www /usr/local/etc/php/conf.d /sock
 
-COPY ./images/php/8.1/conf/php.ini $PHP_INI_DIR
-COPY ./images/php/8.1/conf/php-fpm.conf /usr/local/etc/
-COPY ./images/php/8.1/conf/www.conf /usr/local/etc/php-fpm.d/
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+COPY ./docker/images/php/settings/www.conf /usr/local/etc/php-fpm.d/
+COPY ./docker/images/php/settings/php.ini /usr/local/etc/php/
+COPY ./docker/images/php/settings/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+COPY ./docker/images/php/settings/error_reporting.ini /usr/local/etc/php/conf.d/error_reporting.ini
 
 USER app:app
 VOLUME /var/www
