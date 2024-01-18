@@ -144,7 +144,7 @@ return [
         'vertex' => 1
     ],
     'downloadable_domains' => [
-        'hongkong.test'
+        'mage.test'
     ],
     'install' => [
         'date' => 'Fri, 31 Dec 2021 08:41:13 +0000'
@@ -159,16 +159,16 @@ return [
             ],
             'web' => [
                 'unsecure' => [
-                    'base_url' => 'https://hongkong.test/',
-                    'base_link_url' => 'https://hongkong.test/',
-                    'base_static_url' => 'https://hongkong.test/static/',
-                    'base_media_url' => 'https://hongkong.test/media/'
+                    'base_url' => 'https://mage.test/',
+                    'base_link_url' => 'https://mage.test/',
+                    'base_static_url' => 'https://mage.test/static/',
+                    'base_media_url' => 'https://mage.test/media/'
                 ],
                 'secure' => [
-                    'base_url' => 'https://hongkong.test/',
-                    'base_link_url' => 'https://hongkong.test/',
-                    'base_static_url' => 'https://hongkong.test/static/',
-                    'base_media_url' => 'https://hongkong.test/media/'
+                    'base_url' => 'https://mage.test/',
+                    'base_link_url' => 'https://mage.test/',
+                    'base_static_url' => 'https://mage.test/static/',
+                    'base_media_url' => 'https://mage.test/media/'
                 ],
                 'default' => [
                     'front' => 'cms'
@@ -213,29 +213,29 @@ return [
             ],
             'trans_email' => [
                 'ident_general' => [
-                    'name' => 'damda',
-                    'email' => 'info@damda.com'
+                    'name' => 'test',
+                    'email' => 'info@test.com'
                 ],
                 'ident_sales' => [
-                    'name' => 'damda sales team',
-                    'email' => 'sales@damda.com'
+                    'name' => 'test sales team',
+                    'email' => 'sales@test.com'
                 ],
                 'ident_support' => [
-                    'name' => 'damda cs team',
-                    'email' => 'cs@damda.com'
+                    'name' => 'test cs team',
+                    'email' => 'cs@test.com'
                 ],
                 'ident_custom1' => [
-                    'name' => 'damda',
-                    'email' => 'noreply@damda.com'
+                    'name' => 'test',
+                    'email' => 'noreply@test.com'
                 ],
                 'ident_custom2' => [
-                    'name' => 'damda',
-                    'email' => 'noreply@damda.com'
+                    'name' => 'test',
+                    'email' => 'noreply@test.com'
                 ]
             ],
             'contact' => [
                 'email' => [
-                    'recipient_email' => 'info@damda.com'
+                    'recipient_email' => 'info@test.com'
                 ]
             ],
             'sales_email' => [
@@ -243,25 +243,25 @@ return [
                     'copy_to' => null
                 ],
                 'order_comment' => [
-                    'copy_to' => 'operation@damda.com'
+                    'copy_to' => 'operation@test.com'
                 ],
                 'invoice' => [
-                    'copy_to' => 'operation@damda.com'
+                    'copy_to' => 'operation@test.com'
                 ],
                 'invoice_comment' => [
-                    'copy_to' => 'operation@damda.com'
+                    'copy_to' => 'operation@test.com'
                 ],
                 'shipment' => [
-                    'copy_to' => 'operation@damda.com'
+                    'copy_to' => 'operation@test.com'
                 ],
                 'shipment_comment' => [
-                    'copy_to' => 'operation@damda.com'
+                    'copy_to' => 'operation@test.com'
                 ],
                 'creditmemo' => [
-                    'copy_to' => 'operation@damda.com'
+                    'copy_to' => 'operation@test.com'
                 ],
                 'creditmemo_comment' => [
-                    'copy_to' => 'operation@damda.com'
+                    'copy_to' => 'operation@test.com'
                 ]
             ],
             'checkout' => [
@@ -292,8 +292,8 @@ return [
                     'private_key' => null
                 ],
                 'type_recaptcha_v3' => [
-                    'public_key' => '6LdapvYbAAAAAHXWhz8MeqQs1ePT3VmqYhhJYUtj',
-                    'private_key' => '6LdapvYbAAAAAAYY01VXRFrdOaLI5gQ0Y2Elxmem'
+                    'public_key' => '',
+                    'private_key' => ''
                 ]
             ],
             'recaptcha_frontend' => [
