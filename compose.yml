@@ -1,0 +1,138 @@
+version: '3.9'
+
+services:
+  nginx:
+    container_name: m2-nginx
+    build:
+      context: .
+      dockerfile: docker/images/nginx/${NGINX_VERSION}/Dockerfile
+      args:
+        DOMAIN: ${DOMAIN}
+        APP_ID: ${APP_ID}
+    command: /bin/sh -c "nginx -g 'daemon off;'"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./src:/var/www/html
+      - ./.composer/cache:/var/www/.composer/cache:cached
+    extra_hosts:
+      - ${EXTRA_HOST}
+    links:
+      - php
+      - db
+
+  php:
+    container_name: m2-php
+    build:
+      context: .
+      dockerfile: docker/images/php/${PHP_VERSION}/Dockerfile
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/env/.bashrc:/var/www/.bashrc
+      - ./src/app/code:/var/www/html/app/code:cached
+      - ./src/app/design:/var/www/html/app/design:cached
+      - ./src/app/etc:/var/www/html/app/etc:cached
+      - ./src/composer.json:/var/www/html/composer.json:cached
+      - ./src/composer.lock:/var/www/html/composer.lock:cached
+      - ./src/grunt-config.json.sample:/var/www/html/grunt-config.json:cached
+      - ./src/Gruntfile.js.sample:/var/www/html/Gruntfile.js:cached
+      - ./src/dev/tools/grunt/configs:/var/www/html/dev/tools/grunt/configs:cached
+      - ./src/nginx.conf.sample:/var/www/html/nginx.conf:cached
+      - ./src/package.json.sample:/var/www/html/package.json:cached
+    working_dir: /var/www/html
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  db:
+    container_name: m2-db
+    build:
+      context: .
+      dockerfile: docker/images/mysql/Dockerfile
+    restart: always
+    command:
+      --max_allowed_packet=64M
+      --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    env_file:
+      - docker/env/db.env
+
+  elasticsearch:
+    container_name: m2-elasticsearch
+    build:
+      context: .
+      dockerfile: docker/images/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+    env_file:
+      - docker/env/elasticsearch.env
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+      - "index.blocks.read_only_allow_delete"
+
+  phpmyadmin:
+    container_name: m2-phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    env_file:
+      - docker/env/db.env
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+    restart: always
+    depends_on:
+      - db
+
+  redis:
+    container_name: m2-redis
+    image: redis:6.0-alpine
+    ports:
+      - "6379:6379"
+    env_file:
+      - docker/env/redis.env
+
+#  opensearch:
+#    build:
+#      context: .
+#      dockerfile: images/opensearch/1.2/Dockerfile
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+#    env_file: env/opensearch.env
+#    environment:
+#      - "discovery.type=single-node"
+#      - "cluster.routing.allocation.disk.threshold_enabled=false"
+#      - "index.blocks.read_only_allow_delete"
+
+  rabbitmq:
+    container_name: m2-rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+    env_file:
+      - docker/env/rabbitmq.env
+
+  mailhog:
+    container_name: m2-mailhog
+    image: mailhog/mailhog:latest
+    restart: always
+    ports:
+     - 1025:1025
+     - 8025:8025
+    links:
+      - php
+
+volumes:
+  dbdata:
+  rabbitmqdata:
