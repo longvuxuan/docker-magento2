@@ -1,3 +1,3 @@
 FROM rabbitmq:3.9-management-alpine
 
-COPY conf/rabbitmq.conf /etc/rabbitmq/rabbitmq.conf
+COPY ./docker/images/rabbitmq/settings/rabbitmq.conf /etc/rabbitmq/rabbitmq.conf

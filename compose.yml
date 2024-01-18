@@ -5,7 +5,7 @@ services:
     container_name: m2-nginx
     build:
       context: .
-      dockerfile: docker/images/nginx/${NGINX_VERSION}/Dockerfile
+      dockerfile: docker/images/nginx/Dockerfile
       args:
         DOMAIN: ${DOMAIN}
         APP_ID: ${APP_ID}
@@ -31,7 +31,7 @@ services:
       - "9000:9000"
     volumes:
       - ./src:/var/www/html
-      - ./docker/env/.bashrc:/var/www/.bashrc
+      - ./docker/settings/.bashrc:/var/www/.bashrc
       - ./src/app/code:/var/www/html/app/code:cached
       - ./src/app/design:/var/www/html/app/design:cached
       - ./src/app/etc:/var/www/html/app/etc:cached
@@ -60,7 +60,7 @@ services:
     volumes:
       - dbdata:/var/lib/mysql
     env_file:
-      - docker/env/db.env
+      - docker/settings/db.env
 
   elasticsearch:
     container_name: m2-elasticsearch
@@ -71,7 +71,7 @@ services:
       - "9300:9300"
       - "9200:9200"
     env_file:
-      - docker/env/elasticsearch.env
+      - docker/settings/elasticsearch.env
     environment:
       - "discovery.type=single-node"
       - "cluster.routing.allocation.disk.threshold_enabled=false"
@@ -83,7 +83,7 @@ services:
     ports:
       - "8080:80"
     env_file:
-      - docker/env/db.env
+      - docker/settings/db.env
     environment:
       - PMA_ARBITRARY=1
       - PMA_HOST=db
@@ -97,7 +97,7 @@ services:
     ports:
       - "6379:6379"
     env_file:
-      - docker/env/redis.env
+      - docker/settings/redis.env
 
 #  opensearch:
 #    build:
@@ -119,9 +119,9 @@ services:
       - "15672:15672"
       - "5672:5672"
     volumes:
-      - rabbitmqdata:/var/lib/rabbitmq
+      - rabbitmq-data:/var/lib/rabbitmq
     env_file:
-      - docker/env/rabbitmq.env
+      - docker/settings/rabbitmq.env
 
   mailhog:
     container_name: m2-mailhog
@@ -135,4 +135,4 @@ services:
 
 volumes:
   dbdata:
-  rabbitmqdata:
+  rabbitmq-data:

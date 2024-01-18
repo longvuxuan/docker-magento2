@@ -120,10 +120,10 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN echo 'memory_limit = -1' >> "$PHP_INI_DIR/php.ini"
 
-COPY ./docker/images/php/7.4/conf/www.conf /usr/local/etc/php-fpm.d/
-COPY ./docker/images/php/7.4/conf/php.ini /usr/local/etc/php/
-COPY ./docker/images/php/7.4/conf/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-COPY ./docker/images/php/7.4/conf/error_reporting.ini /usr/local/etc/php/conf.d/error_reporting.ini
+COPY ./docker/images/php/settings/www.conf /usr/local/etc/php-fpm.d/
+COPY ./docker/images/php/settings/php.ini /usr/local/etc/php/
+COPY ./docker/images/php/settings/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+COPY ./docker/images/php/settings/error_reporting.ini /usr/local/etc/php/conf.d/error_reporting.ini
 
 USER app:app
 VOLUME /var/www
