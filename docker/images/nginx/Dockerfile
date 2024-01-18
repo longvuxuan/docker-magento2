@@ -1,4 +1,4 @@
-FROM nginx:1.18-alpine
+FROM nginx:1.24-alpine
 
 ARG APP_ID
 ARG DOMAIN

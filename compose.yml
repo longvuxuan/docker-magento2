@@ -60,8 +60,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-#      - ./docker/images/mysql/data:/var/lib/mysql
-      - ./docker/images/mysql/db/:/docker-entrypoint-initdb.d/
+      - db_data:/var/lib/mysql/data
+      - ./docker/images/mysql/db/magento.sql:/docker-entrypoint-initdb.d/magento.sql
 #      - ./docker/images/mysql/db:/docker-entrypoint-initdb-multi.d
     env_file:
       - ./docker/settings/db.env
@@ -142,3 +142,4 @@ services:
 
 volumes:
   rabbitmq-data:
+  db_data:

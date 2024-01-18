@@ -1,4 +1,4 @@
-FROM mariadb:10.6
+FROM mysql:8.0
 
 #RUN mkdir -p /etc/mysql/data \
 #  && chown -R app:app /etc/mysql/data \
