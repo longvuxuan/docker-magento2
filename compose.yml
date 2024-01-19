@@ -51,11 +51,13 @@ services:
     image: mysql:8.0
     restart: always
     command:
-      --max_allowed_packet=64M
+      --max_allowed_packet=1000M
       --authentication_policy=mysql_native_password
     ports:
       - "3306:3306"
     volumes:
+      - ./docker/images/mysql/data:/var/lib/mysql
+      - ./docker/images/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./docker/images/mysql/db/magento.sql.gz:/docker-entrypoint-initdb.d/magento.sql.gz
     env_file:
       - ./docker/settings/db.env
@@ -74,6 +76,7 @@ services:
 #      - "discovery.type=single-node"
 #      - "cluster.routing.allocation.disk.threshold_enabled=false"
 #      - "index.blocks.read_only_allow_delete"
+      #  - indices.id_field_data.enabled=true
 
   phpmyadmin:
     container_name: m2-phpmyadmin
@@ -112,6 +115,7 @@ services:
       - "discovery.type=single-node"
       - "cluster.routing.allocation.disk.threshold_enabled=false"
       - "index.blocks.read_only_allow_delete"
+      - "indices.id_field_data.enabled=true"
 
   rabbitmq:
     container_name: m2-rabbitmq

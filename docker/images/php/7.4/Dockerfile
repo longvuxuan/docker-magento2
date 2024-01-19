@@ -53,6 +53,8 @@ RUN docker-php-ext-configure \
 RUN docker-php-ext-install -j$(nproc) \
   bcmath \
   bz2 \
+  ctype \
+  dom \
   calendar \
   exif \
   gd \
@@ -73,7 +75,18 @@ RUN docker-php-ext-install -j$(nproc) \
   xmlrpc \
   xsl \
   zip \
-  pcntl
+  pcntl \
+  fileinfo \
+  filter \
+  hash \
+  iconv \
+  json \
+  openssl \
+  pcre \
+  simplexml \
+  tokenizer \
+  xmlwriter \
+  zlib
 
 RUN pecl install -o -f \
   geoip-1.1.1 \
@@ -107,6 +120,11 @@ RUN pecl install xdebug-3.1.6 \
 RUN echo 'alias xoff="mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini.off && kill -USR2 1"' >> ~/.bashrc
 RUN echo 'alias xon="mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini.off /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && kill -USR2 1"' >> ~/.bashrc
 
+# add xdebug switcher (xdebug on / xdebug off)
+ADD ./docker/images/php/settings/debug /usr/bin/debug
+RUN chmod 755 /usr/bin/debug
+RUN debug off
+
 RUN curl -sS https://getcomposer.org/installer | \
   php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.22
 
@@ -117,8 +135,6 @@ RUN go get github.com/mailhog/mhsendmail
 RUN echo 'sendmail_path="/usr/local/bin/mhsendmail --smtp-addr=mailhog:1025"' >> /usr/local/etc/php/conf.d/mail.ini
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
-
-RUN echo 'memory_limit = -1' >> "$PHP_INI_DIR/php.ini"
 
 COPY ./docker/images/php/settings/www.conf /usr/local/etc/php-fpm.d/
 COPY ./docker/images/php/settings/php.ini /usr/local/etc/php/

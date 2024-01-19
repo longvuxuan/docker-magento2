@@ -40,8 +40,6 @@ RUN apt-get update && apt-get install -y  \
     golang-go \
   && rm -rf /var/lib/apt/lists/*
 
-
-
 RUN pecl channel-update pecl.php.net && pecl install \
     imagick \
     redis \
@@ -55,6 +53,8 @@ RUN docker-php-ext-configure \
   && docker-php-ext-install \
     bcmath \
     bz2 \
+    ctype \
+    dom \
     calendar \
     exif \
     gd \
@@ -79,10 +79,8 @@ RUN docker-php-ext-configure \
     ssh2 \
     xdebug
 
-
 RUN curl -sS https://getcomposer.org/installer | \
   php -- --install-dir=/usr/local/bin --filename=composer \
-
 RUN composer self-update --2
 
 # Configure MailHog
