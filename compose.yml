@@ -14,12 +14,29 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./src:/var/www/html
+      - type: bind
+        source: ./src
+        target: /var/www/html
+
+      - type: bind
+        source: ./docker/nginx/setting/mage2.conf
+        target: /etc/nginx/setting/mage2.conf
+
+      - type: bind
+        source: ./docker/nginx/conf/default.conf
+        target: /etc/nginx/conf.d/default.conf
+      
+      - type: bind
+        source: ./docker/nginx/certs/${DOMAIN}.pem
+        target: /etc/nginx/certs/${DOMAIN}.pem
+      
+      - type: bind
+        source: ./docker/nginx/certs/${DOMAIN}-key.pem
+        target: /etc/nginx/certs/${DOMAIN}-key.pem
     extra_hosts:
       - ${EXTRA_HOST}
     links:
-      - php
-      - db
+      - "php:fpm"
 
   php:
     container_name: m2-php
@@ -29,54 +46,83 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - ./src:/var/www/html
-      - ./docker/settings/.bashrc:/var/www/.bashrc
-      - ./.composer/cache:/var/www/.composer/cache:cached
+      - type: bind
+        source: ./src
+        target: /var/www/html
+      
+      - type: bind
+        source: ./docker/settings/.bashrc
+        target: /var/www/.bashrc
+
+      - type: bind
+        source: ./docker/php/settings/www.conf
+        target: /usr/local/etc/php-fpm.d/www.conf
+      
+      - type: bind
+        source: ./docker/php/settings/php.ini
+        target: /usr/local/etc/php/php.ini
+
+      - type: bind
+        source: ./docker/php/settings/xdebug.ini
+        target: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+      - type: bind
+        source: ./docker/php/settings/error_reporting.ini
+        target: /usr/local/etc/php/conf.d/error_reporting.ini
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   db:
     container_name: m2-db
     image: mysql:8.0
-    restart: always
-    command:
-      --max_allowed_packet=1000M
-      --authentication_policy=mysql_native_password
     ports:
       - "3306:3306"
+    command:
+      --max_allowed_packet=1000M
+      --authentication_policy=caching_sha2_password
+    environment:
+      MYSQL_HOST: "db"
+      MYSQL_DATABASE: "magento"
+      MYSQL_ROOT_PASSWORD: "Root123@"
+      MYSQL_USER: "magento"
+      MYSQL_PASSWORD: "magento"
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
     volumes:
-      - db-data:/var/lib/mysql
-      - ./docker/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
-      - ./docker/mysql/init-db/db.sql.gz:/docker-entrypoint-initdb.d/db.sql.gz
-    env_file:
-      - ./docker/mysql/settings/db.env
+      - type: volume
+        source: dbdata
+        target: /var/lib/mysql
+        volume:
+          nocopy: false
+      
+      - type: bind
+        source: ./docker/mysql/conf/my.cnf
+        target: /etc/mysql/conf.d/my.cnf
 
-#  elasticsearch:
-#    container_name: m2-elasticsearch
-#    build:
-#      context: .
-#      dockerfile: docker/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
-#    ports:
-#      - "9300:9300"
-#      - "9200:9200"
-#    env_file:
-#      - ./docker/elasticsearch/settings/elasticsearch.env
-#    environment:
-#      - "discovery.type=single-node"
-#      - "cluster.routing.allocation.disk.threshold_enabled=false"
-#      - "index.blocks.read_only_allow_delete"
-      #  - indices.id_field_data.enabled=true
+      - type: bind
+        source: ./docker/mysql/init-db/hongkong.sql.gz
+        target: /docker-entrypoint-initdb.d/hongkong.sql.gz
+
+  elasticsearch:
+    container_name: m2-elasticsearch
+    build:
+      context: .
+      dockerfile: docker/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+      - "index.blocks.read_only_allow_delete"
+      - "indices.id_field_data.enabled=true"
 
   phpmyadmin:
     container_name: m2-phpmyadmin
     image: phpmyadmin/phpmyadmin:latest
     ports:
       - "8080:80"
-    env_file:
-      - ./docker/mysql/settings/db.env
     environment:
       - UPLOAD_LIMIT=1G
-      - PMA_ARBITRARY=1
       - PMA_HOST=db
       - PMA_POST=3306
     restart: always
@@ -88,23 +134,19 @@ services:
     image: redis:7.0-alpine
     ports:
       - "6379:6379"
-    env_file:
-      - ./docker/redis/settings/redis.env
 
-  opensearch:
-    build:
-      context: .
-      dockerfile: ./docker/opensearch/2.5/Dockerfile
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    env_file:
-      - ./docker/opensearch/settings/opensearch.env
-    environment:
-      - "discovery.type=single-node"
-      - "cluster.routing.allocation.disk.threshold_enabled=false"
-      - "index.blocks.read_only_allow_delete"
-      - "indices.id_field_data.enabled=true"
+#  opensearch:
+#    build:
+#      context: .
+#      dockerfile: ./docker/opensearch/2.5/Dockerfile
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+#    environment:
+#      - "discovery.type=single-node"
+#      - "cluster.routing.allocation.disk.threshold_enabled=false"
+#      - "index.blocks.read_only_allow_delete"
+#      - "indices.id_field_data.enabled=true"
 
   rabbitmq:
     container_name: m2-rabbitmq
@@ -113,14 +155,19 @@ services:
       - "15672:15672"
       - "5672:5672"
     volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-    env_file:
-      - ./docker/rabbitmq/settings/rabbitmq.env
+      - type: volume
+        source: rabbitmqdata
+        target: /var/lib/rabbitmq
+        volume:
+          nocopy: false
+
+      - type: bind
+        source: ./docker/rabbitmq/settings/rabbitmq.conf
+        target: /etc/rabbitmq/rabbitmq.conf
 
   mailhog:
     container_name: m2-mailhog
     image: mailhog/mailhog:latest
-    restart: always
     ports:
      - 1025:1025
      - 8025:8025
@@ -128,5 +175,5 @@ services:
       - php
 
 volumes:
-  rabbitmq-data:
-  db-data:
+  rabbitmqdata:
+  dbdata:
