@@ -15,7 +15,6 @@ services:
       - "443:443"
     volumes:
       - ./src:/var/www/html
-      - ./.composer/cache:/var/www/.composer/cache:cached
     extra_hosts:
       - ${EXTRA_HOST}
     links:
@@ -32,16 +31,7 @@ services:
     volumes:
       - ./src:/var/www/html
       - ./docker/settings/.bashrc:/var/www/.bashrc
-      - ./src/app/code:/var/www/html/app/code:cached
-      - ./src/app/design:/var/www/html/app/design:cached
-      - ./src/app/etc:/var/www/html/app/etc:cached
-      - ./src/composer.json:/var/www/html/composer.json:cached
-      - ./src/composer.lock:/var/www/html/composer.lock:cached
-      - ./src/grunt-config.json.sample:/var/www/html/grunt-config.json:cached
-      - ./src/Gruntfile.js.sample:/var/www/html/Gruntfile.js:cached
-      - ./src/dev/tools/grunt/configs:/var/www/html/dev/tools/grunt/configs:cached
-      - ./src/nginx.conf.sample:/var/www/html/nginx.conf:cached
-      - ./src/package.json.sample:/var/www/html/package.json:cached
+      - ./.composer/cache:/var/www/.composer/cache:cached
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -55,7 +45,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./docker/mysql/data:/var/lib/mysql
+      - db-data:/var/lib/mysql
       - ./docker/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./docker/mysql/init-db/db.sql.gz:/docker-entrypoint-initdb.d/db.sql.gz
     env_file:
@@ -139,3 +129,4 @@ services:
 
 volumes:
   rabbitmq-data:
+  db-data:
