@@ -5,7 +5,7 @@ services:
     container_name: m2-nginx
     build:
       context: .
-      dockerfile: docker/images/nginx/Dockerfile
+      dockerfile: ./docker/nginx/Dockerfile
       args:
         DOMAIN: ${DOMAIN}
         APP_ID: ${APP_ID}
@@ -26,7 +26,7 @@ services:
     container_name: m2-php
     build:
       context: .
-      dockerfile: docker/images/php/${PHP_VERSION}/Dockerfile
+      dockerfile: ./docker/php/${PHP_VERSION}/Dockerfile
     ports:
       - "9000:9000"
     volumes:
@@ -42,75 +42,79 @@ services:
       - ./src/dev/tools/grunt/configs:/var/www/html/dev/tools/grunt/configs:cached
       - ./src/nginx.conf.sample:/var/www/html/nginx.conf:cached
       - ./src/package.json.sample:/var/www/html/package.json:cached
-    working_dir: /var/www/html
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   db:
     container_name: m2-db
-    build:
-      context: .
-      dockerfile: docker/images/mysql/Dockerfile
+    image: mysql:8.0
     restart: always
     command:
-      --max_allowed_packet=64M
-      --default-authentication-plugin=mysql_native_password
+      --max_allowed_packet=1000M
+      --authentication_policy=mysql_native_password
     ports:
       - "3306:3306"
     volumes:
-      - dbdata:/var/lib/mysql
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./docker/mysql/init-db/db.sql.gz:/docker-entrypoint-initdb.d/db.sql.gz
     env_file:
-      - docker/settings/db.env
+      - ./docker/mysql/settings/db.env
 
-  elasticsearch:
-    container_name: m2-elasticsearch
-    build:
-      context: .
-      dockerfile: docker/images/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
-    ports:
-      - "9300:9300"
-      - "9200:9200"
-    env_file:
-      - docker/settings/elasticsearch.env
-    environment:
-      - "discovery.type=single-node"
-      - "cluster.routing.allocation.disk.threshold_enabled=false"
-      - "index.blocks.read_only_allow_delete"
+#  elasticsearch:
+#    container_name: m2-elasticsearch
+#    build:
+#      context: .
+#      dockerfile: docker/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
+#    ports:
+#      - "9300:9300"
+#      - "9200:9200"
+#    env_file:
+#      - ./docker/elasticsearch/settings/elasticsearch.env
+#    environment:
+#      - "discovery.type=single-node"
+#      - "cluster.routing.allocation.disk.threshold_enabled=false"
+#      - "index.blocks.read_only_allow_delete"
+      #  - indices.id_field_data.enabled=true
 
   phpmyadmin:
     container_name: m2-phpmyadmin
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
     ports:
       - "8080:80"
     env_file:
-      - docker/settings/db.env
+      - ./docker/mysql/settings/db.env
     environment:
+      - UPLOAD_LIMIT=1G
       - PMA_ARBITRARY=1
       - PMA_HOST=db
+      - PMA_POST=3306
     restart: always
     depends_on:
       - db
 
   redis:
     container_name: m2-redis
-    image: redis:6.0-alpine
+    image: redis:7.0-alpine
     ports:
       - "6379:6379"
     env_file:
-      - docker/settings/redis.env
+      - ./docker/redis/settings/redis.env
 
-#  opensearch:
-#    build:
-#      context: .
-#      dockerfile: images/opensearch/1.2/Dockerfile
-#    ports:
-#      - "9200:9200"
-#      - "9300:9300"
-#    env_file: env/opensearch.env
-#    environment:
-#      - "discovery.type=single-node"
-#      - "cluster.routing.allocation.disk.threshold_enabled=false"
-#      - "index.blocks.read_only_allow_delete"
+  opensearch:
+    build:
+      context: .
+      dockerfile: ./docker/opensearch/2.5/Dockerfile
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    env_file:
+      - ./docker/opensearch/settings/opensearch.env
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+      - "index.blocks.read_only_allow_delete"
+      - "indices.id_field_data.enabled=true"
 
   rabbitmq:
     container_name: m2-rabbitmq
@@ -121,7 +125,7 @@ services:
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     env_file:
-      - docker/settings/rabbitmq.env
+      - ./docker/rabbitmq/settings/rabbitmq.env
 
   mailhog:
     container_name: m2-mailhog
@@ -134,5 +138,4 @@ services:
       - php
 
 volumes:
-  dbdata:
   rabbitmq-data:

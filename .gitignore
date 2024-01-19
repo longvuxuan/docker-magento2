@@ -2,3 +2,5 @@ src/
 .idea/
 .DS_Store
 .github
+.sql
+.sql.gz
