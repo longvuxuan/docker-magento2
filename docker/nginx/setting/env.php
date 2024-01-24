@@ -185,15 +185,16 @@ return [
                 'product_video' => [
                     'youtube_api_key' => 'AIzaSyA66luhlcsvUi5JBSyAmT_o-fxiPxkTJlA'
                 ],
-                'search' => [
-                    'engine' => 'opensearch',
-                    'opensearch_server_hostname' => 'opensearch',
-                    'opensearch_server_port' => '9200',
-                    'opensearch_index_prefix' => 'magento2',
-                    'opensearch_enable_auth' => '0',
-                    'search_recommendations_enabled' => 1,
-                    'opensearch_server_timeout' => '15'
-                ]
+				'search' => [
+					'engine' => 'elasticsearch7',
+					'elasticsearch7_server_hostname' => 'elasticsearch',
+					'elasticsearch7_server_port' => '9200',
+					'elasticsearch7_index_prefix' => 'magento2',
+					'elasticsearch7_enable_auth' => '0',
+					'elasticsearch7_username' => null,
+					'elasticsearch7_password' => null,
+					'elasticsearch7_server_timeout' => '15'
+				]
             ],
             'cataloginventory' => [
                 'source_selection_distance_based_google' => [

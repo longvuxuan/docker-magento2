@@ -4,3 +4,4 @@ src/
 .github
 .sql
 .sql.gz
+docker/mysql/data
