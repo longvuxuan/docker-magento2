@@ -1,11 +1,9 @@
-version: '3.9'
-
 services:
   nginx:
     container_name: ${PROJECT_NAME}-nginx
     build:
       context: .
-      dockerfile: ./docker/nginx/Dockerfile
+      dockerfile: ./.docker/nginx/Dockerfile
       args:
         DOMAIN: ${DOMAIN}
         APP_ID: ${APP_ID}
@@ -19,19 +17,19 @@ services:
         target: /var/www/html
 
       - type: bind
-        source: ./docker/nginx/setting/mage2.conf
+        source: ./.docker/nginx/setting/mage2.conf
         target: /etc/nginx/setting/mage2.conf
 
       - type: bind
-        source: ./docker/nginx/conf/default.conf
+        source: ./.docker/nginx/conf/default.conf
         target: /etc/nginx/conf.d/default.conf
       
       - type: bind
-        source: ./docker/nginx/certs/${DOMAIN}.pem
+        source: ./.docker/nginx/certs/${DOMAIN}.pem
         target: /etc/nginx/certs/${DOMAIN}.pem
       
       - type: bind
-        source: ./docker/nginx/certs/${DOMAIN}-key.pem
+        source: ./.docker/nginx/certs/${DOMAIN}-key.pem
         target: /etc/nginx/certs/${DOMAIN}-key.pem
     extra_hosts:
       - ${EXTRA_HOST}
@@ -42,7 +40,7 @@ services:
     container_name: ${PROJECT_NAME}-php
     build:
       context: .
-      dockerfile: ./docker/php/${PHP_VERSION}/Dockerfile
+      dockerfile: ./.docker/php/${PHP_VERSION}/Dockerfile
     ports:
       - "9000:9000"
     volumes:
@@ -51,30 +49,30 @@ services:
         target: /var/www/html
       
       - type: bind
-        source: ./docker/settings/.bashrc
+        source: ./.docker/settings/.bashrc
         target: /var/www/.bashrc
 
       - type: bind
-        source: ./docker/php/settings/www.conf
+        source: ./.docker/php/settings/www.conf
         target: /usr/local/etc/php-fpm.d/www.conf
       
       - type: bind
-        source: ./docker/php/settings/php.ini
+        source: ./.docker/php/settings/php.ini
         target: /usr/local/etc/php/php.ini
 
       - type: bind
-        source: ./docker/php/settings/xdebug.ini
+        source: ./.docker/php/settings/xdebug.ini
         target: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
       - type: bind
-        source: ./docker/php/settings/error_reporting.ini
+        source: ./.docker/php/settings/error_reporting.ini
         target: /usr/local/etc/php/conf.d/error_reporting.ini
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   db:
     container_name: ${PROJECT_NAME}-db
-    image: mysql:5.7
+    image: mysql:8.0
     ports:
       - "3306:3306"
     command:
@@ -96,18 +94,18 @@ services:
       #     nocopy: false
       
       - type: bind
-        source: ./docker/mysql/conf/my.cnf
+        source: ./.docker/mysql/conf/my.cnf
         target: /etc/mysql/conf.d/my.cnf
 
       - type: bind
-        source: ./docker/mysql/init-db/db.sql
-        target: /docker-entrypoint-initdb.d/db.sql
+        source: ./.docker/mysql/init-db/laszlo2.sql.gz
+        target: /docker-entrypoint-initdb.d/laszlo2.sql.gz
 
   elasticsearch:
     container_name: ${PROJECT_NAME}-elasticsearch
     build:
       context: .
-      dockerfile: docker/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
+      dockerfile: ./.docker/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
     ports:
       - "9300:9300"
       - "9200:9200"
@@ -126,20 +124,20 @@ services:
       - UPLOAD_LIMIT=1G
       - PMA_HOST=db
       - PMA_POST=3306
-    restart: always
+#    restart: always
     depends_on:
       - db
 
-  # redis:
-  #   container_name: ${PROJECT_NAME}-redis
-  #   image: redis:7.0-alpine
-  #   ports:
-  #     - "6379:6379"
+  redis:
+   container_name: ${PROJECT_NAME}-redis
+   image: redis:7.0-alpine
+   ports:
+     - "6379:6379"
 
 #  opensearch:
 #    build:
 #      context: .
-#      dockerfile: ./docker/opensearch/2.5/Dockerfile
+#      dockerfile: ./.docker/opensearch/2.5/Dockerfile
 #    ports:
 #      - "9200:9200"
 #      - "9300:9300"
@@ -149,22 +147,22 @@ services:
 #      - "index.blocks.read_only_allow_delete"
 #      - "indices.id_field_data.enabled=true"
 
-  # rabbitmq:
-  #   container_name: ${PROJECT_NAME}-rabbitmq
-  #   image: rabbitmq:3-management
-  #   ports:
-  #     - "15672:15672"
-  #     - "5672:5672"
-  #   volumes:
-  #     - type: volume
-  #       source: rabbitmqdata
-  #       target: /var/lib/rabbitmq
-  #       volume:
-  #         nocopy: false
+  rabbitmq:
+   container_name: ${PROJECT_NAME}-rabbitmq
+   image: rabbitmq:3-management
+   ports:
+     - "15672:15672"
+     - "5672:5672"
+   volumes:
+     - type: volume
+       source: rabbitmqdata
+       target: /var/lib/rabbitmq
+       volume:
+         nocopy: false
 
-  #     - type: bind
-  #       source: ./docker/rabbitmq/settings/rabbitmq.conf
-  #       target: /etc/rabbitmq/rabbitmq.conf
+     - type: bind
+       source: ./.docker/rabbitmq/settings/rabbitmq.conf
+       target: /etc/rabbitmq/rabbitmq.conf
 
   mailhog:
     container_name: ${PROJECT_NAME}-mailhog

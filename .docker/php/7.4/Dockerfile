@@ -1,4 +1,4 @@
-FROM php:7.3-fpm
+FROM php:7.4-fpm
 
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
@@ -43,8 +43,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # Configure the gd library
-RUN docker-php-ext-configure \
-  gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-configure \
   opcache --enable-opcache
 
@@ -80,7 +79,7 @@ RUN pecl channel-update pecl.php.net && pecl install xdebug-3.1.6 \
 RUN curl -sS https://getcomposer.org/installer | \
   php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.22
 
-RUN composer self-update --1
+RUN composer self-update --2
 
 RUN mkdir -p /etc/nginx/html /var/www/html /sock \
   && chown -R app:app /etc/nginx /var/www /usr/local/etc/php/conf.d /sock

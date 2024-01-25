@@ -55,9 +55,6 @@ return [
     ],
     'x-frame-options' => 'SAMEORIGIN',
     'MAGE_MODE' => 'developer',
-    'session' => [
-        'save' => 'files'
-    ],
 	'cache' => [
 		'graphql' => [
 			'id_salt' => 'vKFnOGRVJ7o23FoAwGSxqG0q1bv4qLDA'
@@ -181,9 +178,6 @@ return [
             'catalog' => [
                 'productalert_cron' => [
                     'error_email' => null
-                ],
-                'product_video' => [
-                    'youtube_api_key' => 'AIzaSyA66luhlcsvUi5JBSyAmT_o-fxiPxkTJlA'
                 ],
 				'search' => [
 					'engine' => 'elasticsearch7',
@@ -330,20 +324,6 @@ return [
                 ],
                 'js' => [
                     'session_storage_key' => 'collected_errors'
-                ]
-            ],
-            'shipment_settings' => [
-                'country_settings' => [
-                    'allow_countries' => 'KR,CN,CA,US,JP'
-                ]
-            ]
-        ],
-        'stores' => [
-            'jp' => [
-                'general' => [
-                    'locale' => [
-                        'code' => 'ja_JP'
-                    ]
                 ]
             ]
         ]
