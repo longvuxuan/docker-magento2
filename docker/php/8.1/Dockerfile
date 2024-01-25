@@ -75,9 +75,6 @@ RUN curl -sS https://getcomposer.org/installer | \
 
 RUN composer self-update --2
 
-# Configure MailHog
-# RUN echo 'sendmail_path="/usr/local/bin/mhsendmail --smtp-addr=mailhog:1025"' >> /usr/local/etc/php/conf.d/mail.ini
-
 RUN mkdir -p /etc/nginx/html /var/www/html /sock \
   && chown -R app:app /etc/nginx /var/www /usr/local/etc/php/conf.d /sock
 

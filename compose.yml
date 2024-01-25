@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   nginx:
-    container_name: m2-nginx
+    container_name: ${PROJECT_NAME}-nginx
     build:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
@@ -39,7 +39,7 @@ services:
       - "php:fpm"
 
   php:
-    container_name: m2-php
+    container_name: ${PROJECT_NAME}-php
     build:
       context: .
       dockerfile: ./docker/php/${PHP_VERSION}/Dockerfile
@@ -73,13 +73,14 @@ services:
       - "host.docker.internal:host-gateway"
 
   db:
-    container_name: m2-db
-    image: mysql:8.0
+    container_name: ${PROJECT_NAME}-db
+    image: mysql:5.7
     ports:
       - "3306:3306"
     command:
       --max_allowed_packet=1000M
-      --authentication_policy=caching_sha2_password
+      --innodb_use_native_aio=0
+      # --authentication_policy=caching_sha2_password
     environment:
       MYSQL_HOST: "db"
       MYSQL_DATABASE: "magento"
@@ -88,22 +89,22 @@ services:
       MYSQL_PASSWORD: "magento"
       MYSQL_ALLOW_EMPTY_PASSWORD: true
     volumes:
-      - type: volume
-        source: dbdata
-        target: /var/lib/mysql
-        volume:
-          nocopy: false
+      # - type: volume
+      #   source: dbdata
+      #   target: /var/lib/mysql
+      #   volume:
+      #     nocopy: false
       
       - type: bind
         source: ./docker/mysql/conf/my.cnf
         target: /etc/mysql/conf.d/my.cnf
 
       - type: bind
-        source: ./docker/mysql/init-db/hongkong.sql.gz
-        target: /docker-entrypoint-initdb.d/hongkong.sql.gz
+        source: ./docker/mysql/init-db/db.sql
+        target: /docker-entrypoint-initdb.d/db.sql
 
   elasticsearch:
-    container_name: m2-elasticsearch
+    container_name: ${PROJECT_NAME}-elasticsearch
     build:
       context: .
       dockerfile: docker/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
@@ -117,7 +118,7 @@ services:
       - "indices.id_field_data.enabled=true"
 
   phpmyadmin:
-    container_name: m2-phpmyadmin
+    container_name: ${PROJECT_NAME}-phpmyadmin
     image: phpmyadmin/phpmyadmin:latest
     ports:
       - "8080:80"
@@ -129,11 +130,11 @@ services:
     depends_on:
       - db
 
-  redis:
-    container_name: m2-redis
-    image: redis:7.0-alpine
-    ports:
-      - "6379:6379"
+  # redis:
+  #   container_name: ${PROJECT_NAME}-redis
+  #   image: redis:7.0-alpine
+  #   ports:
+  #     - "6379:6379"
 
 #  opensearch:
 #    build:
@@ -148,25 +149,25 @@ services:
 #      - "index.blocks.read_only_allow_delete"
 #      - "indices.id_field_data.enabled=true"
 
-  rabbitmq:
-    container_name: m2-rabbitmq
-    image: rabbitmq:3-management
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-    volumes:
-      - type: volume
-        source: rabbitmqdata
-        target: /var/lib/rabbitmq
-        volume:
-          nocopy: false
+  # rabbitmq:
+  #   container_name: ${PROJECT_NAME}-rabbitmq
+  #   image: rabbitmq:3-management
+  #   ports:
+  #     - "15672:15672"
+  #     - "5672:5672"
+  #   volumes:
+  #     - type: volume
+  #       source: rabbitmqdata
+  #       target: /var/lib/rabbitmq
+  #       volume:
+  #         nocopy: false
 
-      - type: bind
-        source: ./docker/rabbitmq/settings/rabbitmq.conf
-        target: /etc/rabbitmq/rabbitmq.conf
+  #     - type: bind
+  #       source: ./docker/rabbitmq/settings/rabbitmq.conf
+  #       target: /etc/rabbitmq/rabbitmq.conf
 
   mailhog:
-    container_name: m2-mailhog
+    container_name: ${PROJECT_NAME}-mailhog
     image: mailhog/mailhog:latest
     ports:
      - 1025:1025
