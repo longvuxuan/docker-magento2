@@ -1,11 +1,9 @@
-version: '3.9'
-
 services:
   nginx:
-    container_name: m2-nginx
+    container_name: ${PROJECT_NAME}-nginx
     build:
       context: .
-      dockerfile: ./docker/nginx/Dockerfile
+      dockerfile: ./.docker/nginx/Dockerfile
       args:
         DOMAIN: ${DOMAIN}
         APP_ID: ${APP_ID}
@@ -13,25 +11,26 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    restart: always
     volumes:
       - type: bind
         source: ./src
         target: /var/www/html
 
       - type: bind
-        source: ./docker/nginx/setting/mage2.conf
+        source: ./.docker/nginx/setting/mage2.conf
         target: /etc/nginx/setting/mage2.conf
 
       - type: bind
-        source: ./docker/nginx/conf/default.conf
+        source: ./.docker/nginx/conf/default.conf
         target: /etc/nginx/conf.d/default.conf
       
       - type: bind
-        source: ./docker/nginx/certs/${DOMAIN}.pem
+        source: ./.docker/nginx/certs/${DOMAIN}.pem
         target: /etc/nginx/certs/${DOMAIN}.pem
       
       - type: bind
-        source: ./docker/nginx/certs/${DOMAIN}-key.pem
+        source: ./.docker/nginx/certs/${DOMAIN}-key.pem
         target: /etc/nginx/certs/${DOMAIN}-key.pem
     extra_hosts:
       - ${EXTRA_HOST}
@@ -39,47 +38,49 @@ services:
       - "php:fpm"
 
   php:
-    container_name: m2-php
+    container_name: ${PROJECT_NAME}-php
     build:
       context: .
-      dockerfile: ./docker/php/${PHP_VERSION}/Dockerfile
+      dockerfile: ./.docker/php/${PHP_VERSION}/Dockerfile
     ports:
       - "9000:9000"
+    restart: always
     volumes:
       - type: bind
         source: ./src
         target: /var/www/html
       
       - type: bind
-        source: ./docker/settings/.bashrc
+        source: ./.docker/settings/.bashrc
         target: /var/www/.bashrc
 
       - type: bind
-        source: ./docker/php/settings/www.conf
+        source: ./.docker/php/settings/www.conf
         target: /usr/local/etc/php-fpm.d/www.conf
       
       - type: bind
-        source: ./docker/php/settings/php.ini
+        source: ./.docker/php/settings/php.ini
         target: /usr/local/etc/php/php.ini
 
       - type: bind
-        source: ./docker/php/settings/xdebug.ini
+        source: ./.docker/php/settings/xdebug.ini
         target: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
       - type: bind
-        source: ./docker/php/settings/error_reporting.ini
+        source: ./.docker/php/settings/error_reporting.ini
         target: /usr/local/etc/php/conf.d/error_reporting.ini
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   db:
-    container_name: m2-db
-    image: mysql:8.0
+    container_name: ${PROJECT_NAME}-db
+    image: mariadb:10.6
+    restart: always
     ports:
       - "3306:3306"
     command:
       --max_allowed_packet=1000M
-      --authentication_policy=caching_sha2_password
+      --innodb_use_native_aio=0
     environment:
       MYSQL_HOST: "db"
       MYSQL_DATABASE: "magento"
@@ -87,26 +88,28 @@ services:
       MYSQL_USER: "magento"
       MYSQL_PASSWORD: "magento"
       MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_ROOT_HOST: "%"
     volumes:
-      - type: volume
-        source: dbdata
-        target: /var/lib/mysql
-        volume:
-          nocopy: false
+     - type: volume
+       source: dbdata
+       target: /var/lib/mysql
+       volume:
+         nocopy: false
       
-      - type: bind
-        source: ./docker/mysql/conf/my.cnf
-        target: /etc/mysql/conf.d/my.cnf
+     - type: bind
+       source: ./.docker/mysql/conf/my.cnf
+       target: /etc/mysql/conf.d/my.cnf
 
-      - type: bind
-        source: ./docker/mysql/init-db/hongkong.sql.gz
-        target: /docker-entrypoint-initdb.d/hongkong.sql.gz
+     - type: bind
+       source: ./.docker/mysql/db/lg_stg.sql.gz
+       target: /docker-entrypoint-initdb.d/lg_stg.sql.gz
 
   elasticsearch:
-    container_name: m2-elasticsearch
+    container_name: ${PROJECT_NAME}-elasticsearch
     build:
       context: .
-      dockerfile: docker/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
+      dockerfile: ./.docker/elasticsearch/${ELASTICSEARCH_VERSION}/Dockerfile
+    restart: always
     ports:
       - "9300:9300"
       - "9200:9200"
@@ -117,7 +120,7 @@ services:
       - "indices.id_field_data.enabled=true"
 
   phpmyadmin:
-    container_name: m2-phpmyadmin
+    container_name: ${PROJECT_NAME}-phpmyadmin
     image: phpmyadmin/phpmyadmin:latest
     ports:
       - "8080:80"
@@ -130,50 +133,29 @@ services:
       - db
 
   redis:
-    container_name: m2-redis
-    image: redis:7.0-alpine
-    ports:
-      - "6379:6379"
-
-#  opensearch:
-#    build:
-#      context: .
-#      dockerfile: ./docker/opensearch/2.5/Dockerfile
-#    ports:
-#      - "9200:9200"
-#      - "9300:9300"
-#    environment:
-#      - "discovery.type=single-node"
-#      - "cluster.routing.allocation.disk.threshold_enabled=false"
-#      - "index.blocks.read_only_allow_delete"
-#      - "indices.id_field_data.enabled=true"
+   container_name: ${PROJECT_NAME}-redis
+   image: redis:7.0-alpine
+   restart: always
+   ports:
+     - "6379:6379"
 
   rabbitmq:
-    container_name: m2-rabbitmq
-    image: rabbitmq:3-management
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-    volumes:
-      - type: volume
-        source: rabbitmqdata
-        target: /var/lib/rabbitmq
-        volume:
-          nocopy: false
+   container_name: ${PROJECT_NAME}-rabbitmq
+   image: rabbitmq:3-management
+   restart: always
+   ports:
+     - "15672:15672"
+     - "5672:5672"
+   volumes:
+     - type: volume
+       source: rabbitmqdata
+       target: /var/lib/rabbitmq
+       volume:
+         nocopy: false
 
-      - type: bind
-        source: ./docker/rabbitmq/settings/rabbitmq.conf
-        target: /etc/rabbitmq/rabbitmq.conf
-
-  mailhog:
-    container_name: m2-mailhog
-    image: mailhog/mailhog:latest
-    ports:
-     - 1025:1025
-     - 8025:8025
-    links:
-      - php
-
+     - type: bind
+       source: ./.docker/rabbitmq/settings/rabbitmq.conf
+       target: /etc/rabbitmq/rabbitmq.conf
 volumes:
   rabbitmqdata:
   dbdata:
