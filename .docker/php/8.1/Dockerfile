@@ -6,6 +6,7 @@ RUN groupadd -g "$APP_ID" app \
   && useradd -g "$APP_ID" -u "$APP_ID" -d /var/www -s /bin/bash app
 
 RUN apt-get update && apt-get install -y  \
+    wget \
     git \
     curl \
     libpng-dev \
@@ -33,11 +34,12 @@ RUN apt-get update && apt-get install -y  \
     libzip-dev \
     lsof \
     vim \
+    bash-completion \
   && rm -rf /var/lib/apt/lists/*
 
 RUN pecl channel-update pecl.php.net && pecl install \
     imagick \
-    xdebug \
+     xdebug \
   && pecl clear-cache \
   && rm -rf /tmp/pear
 
@@ -75,8 +77,9 @@ RUN curl -sS https://getcomposer.org/installer | \
 
 RUN composer self-update --2
 
-# Configure MailHog
-# RUN echo 'sendmail_path="/usr/local/bin/mhsendmail --smtp-addr=mailhog:1025"' >> /usr/local/etc/php/conf.d/mail.ini
+RUN wget https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mhsendmail_linux_amd64
+RUN chmod +x mhsendmail_linux_amd64
+RUN mv mhsendmail_linux_amd64 /usr/local/bin/mhsendmail
 
 RUN mkdir -p /etc/nginx/html /var/www/html /sock \
   && chown -R app:app /etc/nginx /var/www /usr/local/etc/php/conf.d /sock
