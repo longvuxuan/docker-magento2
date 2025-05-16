@@ -1,0 +1,8 @@
+<application>
+  <component name="PhpAutoImport" auto_import_file_scope="true" />
+  <component name="PhpSmartKeysConfiguration">
+    <option name="findUsagesOfBaseMethod" value="true" />
+    <option name="promptFindUsagesOfBaseMethod" value="false" />
+    <option name="replaceUnnecessaryDoubleQuotes" value="true" />
+  </component>
+</application>

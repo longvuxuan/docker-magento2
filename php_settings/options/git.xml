@@ -1,0 +1,5 @@
+<application>
+  <component name="Git.Application.Settings">
+    <option name="COMBINED_STASHES_AND_SHELVES_ENABLED" value="true" />
+  </component>
+</application>

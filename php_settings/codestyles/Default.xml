@@ -1,0 +1,46 @@
+<code_scheme name="Default" version="173">
+  <PHPCodeStyleSettings>
+    <option name="ALIGN_KEY_VALUE_PAIRS" value="true" />
+    <option name="ALIGN_PHPDOC_PARAM_NAMES" value="true" />
+    <option name="ALIGN_PHPDOC_COMMENTS" value="true" />
+    <option name="ALIGN_ASSIGNMENTS" value="true" />
+    <option name="ALIGN_INLINE_COMMENTS" value="true" />
+    <option name="ALIGN_NAMED_ARGUMENTS" value="true" />
+    <option name="ALIGN_MATCH_ARM_BODIES" value="true" />
+    <option name="PHPDOC_BLANK_LINE_BEFORE_TAGS" value="true" />
+    <option name="PHPDOC_BLANK_LINES_AROUND_PARAMETERS" value="true" />
+    <option name="PHPDOC_WRAP_LONG_LINES" value="true" />
+    <option name="BLANK_LINES_BETWEEN_IMPORTS" value="1" />
+    <option name="FIELDS_DEFAULT_VISIBILITY" value="protected" />
+    <option name="VARIABLE_NAMING_STYLE" value="CAMEL_CASE" />
+    <option name="KEEP_RPAREN_AND_LBRACE_ON_ONE_LINE" value="true" />
+    <option name="ALIGN_CLASS_CONSTANTS" value="true" />
+    <option name="ALIGN_ENUM_CASES" value="true" />
+    <option name="KEEP_BLANK_LINES_AFTER_LBRACE" value="1" />
+    <option name="FORCE_SHORT_DECLARATION_ARRAY_STYLE" value="true" />
+    <option name="NEW_LINE_AFTER_PHP_OPENING_TAG" value="true" />
+    <option name="TREAT_MULTILINE_ARRAYS_AND_LAMBDAS_MULTILINE" value="true" />
+    <option name="FORCE_EMPTY_METHODS_IN_ONE_LINE" value="true" />
+    <option name="PHPDOC_USE_FQCN" value="true" />
+    <option name="HEREDOC_ON_SAME_LINE" value="true" />
+  </PHPCodeStyleSettings>
+  <editorconfig>
+    <option name="ENABLED" value="false" />
+  </editorconfig>
+  <codeStyleSettings language="PHP">
+    <option name="KEEP_BLANK_LINES_IN_DECLARATIONS" value="1" />
+    <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
+    <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="0" />
+    <option name="ALIGN_MULTILINE_EXTENDS_LIST" value="true" />
+    <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true" />
+    <option name="METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE" value="true" />
+    <option name="METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE" value="true" />
+    <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="true" />
+    <option name="KEEP_SIMPLE_CLASSES_IN_ONE_LINE" value="true" />
+    <option name="FOR_STATEMENT_RPAREN_ON_NEXT_LINE" value="true" />
+    <option name="PLACE_ASSIGNMENT_SIGN_ON_NEXT_LINE" value="true" />
+    <indentOptions>
+      <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+    </indentOptions>
+  </codeStyleSettings>
+</code_scheme>

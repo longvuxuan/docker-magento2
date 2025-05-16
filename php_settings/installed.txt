@@ -1,0 +1,6 @@
+com.intellij.ml.llm
+org.jetbrains.plugins.github
+org.jetbrains.plugins.gitlab
+ChatGPT
+com.magento.idea.magento2plugin
+com.google.tools.ij.aiplugin
